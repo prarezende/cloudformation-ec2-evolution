@@ -1,1 +1,54 @@
-Evolução de infraestrutura AWS com CloudFormation: do básico ao nível produção (EC2, segurança, alta disponibilidade e boas práticas DevOps)
+# ⚠️ Observação:
+# Esta versão segue o modelo didático do curso e possui configurações inseguras,
+# como abertura de portas para 0.0.0.0/0. Melhorias serão aplicadas na v2.
+
+Parameters:
+  SGDescricao:
+    Description: SG CloudFormation Modelo_2
+    Type: String
+
+Resources:
+  InstanciaModelo2:
+    Type: AWS::EC2::Instance
+    Properties:
+      AvailabilityZone: us-east-1a
+      ImageId: ami-0427090fd1714168b
+      InstanceType: t3.micro
+      SecurityGroups:
+        - !Ref SGSSH
+        - !Ref SGServidor
+
+  EIPModelo2:
+    Type: AWS::EC2::EIP
+    Properties:
+      InstanceId: !Ref InstanciaModelo2
+
+  SGSSH:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: Grupo de controle de SSH__
+      SecurityGroupIngress:
+      - CidrIp: 0.0.0.0/0
+        FromPort: 22
+        IpProtocol: tcp
+        ToPort: 22
+
+  SGServidor:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: !Ref SGDescricao
+      SecurityGroupIngress:
+      - IpProtocol: tcp
+        FromPort: 80
+        ToPort: 80
+        CidrIp: 0.0.0.0/0
+      - IpProtocol: tcp
+        FromPort: 22
+        ToPort: 22
+        CidrIp: 193.186.4.203/32
+
+Outputs:
+  ElasticIP:
+    Description: IP Elastico criado pelo CloudFormation
+    Value: !Ref EIPModelo2 
+  
